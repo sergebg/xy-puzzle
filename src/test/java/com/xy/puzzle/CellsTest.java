@@ -1,14 +1,18 @@
 package com.xy.puzzle;
 
+import static com.xy.puzzle.Cells.mask;
 import static com.xy.puzzle.Cells.rotateXY;
 import static com.xy.puzzle.Cells.rotateXZ;
 import static com.xy.puzzle.Cells.rotateYZ;
 import static com.xy.puzzle.Cells.rotations;
 import static java.util.Arrays.asList;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.util.BitSet;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -21,6 +25,20 @@ public class CellsTest {
         List<Cell> cells = ImmutableList.of(new Cell(0, 5, 2), new Cell(2, 0, 2), new Cell(3, 3, 1));
         assertEquals(new Cell(0, 0, 1), Cells.low(cells));
         assertEquals(new Cell(3, 5, 2), Cells.high(cells));
+    }
+
+    @Test
+    public void testMask() {
+        assertEquals(1, Cells.mask(asList(new Cell(0, 0, 0)), new Cell(0, 0, 0), new Cell(1, 1, 1)).cardinality());
+
+        assertEquals(1, mask(asList(new Cell(0, 0, 0)), new Cell(1, 1, 1), new Cell(2, 2, 2)).cardinality());
+        assertArrayEquals(new long[] { 128 }, mask(asList(new Cell(0, 0, 0)), new Cell(1, 1, 1), new Cell(2, 2, 2)).toLongArray());
+        assertArrayEquals(new long[] { 2 }, mask(asList(new Cell(1, 0, 0)), new Cell(0, 0, 0), new Cell(2, 2, 2)).toLongArray());
+        assertArrayEquals(new long[] { 4 }, mask(asList(new Cell(0, 1, 0)), new Cell(0, 0, 0), new Cell(2, 2, 2)).toLongArray());
+        assertArrayEquals(new long[] { 16 }, mask(asList(new Cell(0, 0, 1)), new Cell(0, 0, 0), new Cell(2, 2, 2)).toLongArray());
+
+        assertEquals(3, mask(asList(new Cell(1, 0, 0), new Cell(0, 1, 0), new Cell(0, 0, 1)), new Cell(0, 0, 0), new Cell(2, 2, 2)).cardinality());
+        assertArrayEquals(new long[] { 2 + 4 + 16 }, mask(asList(new Cell(1, 0, 0), new Cell(0, 1, 0), new Cell(0, 0, 1)), new Cell(0, 0, 0), new Cell(2, 2, 2)).toLongArray());
     }
 
     @Test

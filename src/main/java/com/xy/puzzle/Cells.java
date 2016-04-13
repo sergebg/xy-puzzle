@@ -2,6 +2,7 @@ package com.xy.puzzle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -165,6 +166,20 @@ public class Cells {
 
     private Cells() {
         throw new AssertionError();
+    }
+
+    public static BitSet mask(Collection<Cell> figure, Cell offset, Cell dim) {
+        int n = dim.getX() * dim.getY() * dim.getZ();
+        BitSet mask = new BitSet(n);
+        mask.clear(0, n);
+        for (Cell cell : figure) {
+            int x = cell.getX() + offset.getX();
+            int y = cell.getY() + offset.getY();
+            int z = cell.getZ() + offset.getZ();
+            int i = x + y * dim.getX() + z * dim.getX() * dim.getY();
+            mask.set(i);
+        }
+        return mask;
     }
 
 }
