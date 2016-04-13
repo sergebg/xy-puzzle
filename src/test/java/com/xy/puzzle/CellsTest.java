@@ -17,10 +17,19 @@ import com.google.common.collect.ImmutableSet;
 public class CellsTest {
 
     @Test
-    public void testLowAndHigh() {
+    public void testHighLow() {
         List<Cell> cells = ImmutableList.of(new Cell(0, 5, 2), new Cell(2, 0, 2), new Cell(3, 3, 1));
         assertEquals(new Cell(0, 0, 1), Cells.low(cells));
         assertEquals(new Cell(3, 5, 2), Cells.high(cells));
+    }
+
+    @Test
+    public void testOffsets() {
+        assertEquals(6, Cells.offsets(asList(new Cell(0, 0, 0)), new Cell(0, 1, 2)).size());
+        assertEquals(0, Cells.offsets(asList(new Cell(1, 0, 0)), new Cell(0, 1, 2)).size());
+        assertEquals(4, Cells.offsets(asList(new Cell(0, 0, 0), new Cell(0, 0, 1)), new Cell(0, 1, 2)).size());
+        assertEquals(2, Cells.offsets(asList(new Cell(0, 0, 0), new Cell(0, 0, 2)), new Cell(0, 1, 2)).size());
+        assertEquals(3, Cells.offsets(asList(new Cell(0, 0, 0), new Cell(0, 1, 0)), new Cell(0, 1, 2)).size());
     }
 
     @Test
