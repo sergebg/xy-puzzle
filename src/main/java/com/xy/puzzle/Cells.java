@@ -82,31 +82,34 @@ public class Cells {
         return offsets;
     }
 
-    public static String print(Collection<Cell> figure) {
-        Cell low = low(figure);
-        Cell high = high(figure);
-
-        int dX = high.getX() - low.getX() + 1;
-        int dY = high.getY() - low.getY() + 1;
-        int dZ = high.getZ() - low.getZ() + 1;
+    public static String print(Dim dim, Collection<Cell> cells, Position pos) {
+        int dX = dim.getX();
+        int dY = dim.getY();
+        int dZ = dim.getZ();
 
         int height = dZ + dY + 1;
         int width = dX + dY + 1;
         char[] chars = new char[width * height];
         Arrays.fill(chars, ' ');
+        for (int i = 0; i < dX + dY + 1; i++) {
+            chars[(dX + dY + 1) * dZ + i] = '-';
+        }
+        for (int i = 0; i < dY + dZ + 1; i++) {
+            chars[dX + i * (dX + dY + 1)] = '|';
+        }
+        chars[dZ * (dX + dY + 1) + dY] = '+';
 
-        for (Cell c : figure) {
-            Cell r = c.relative(low);
-            int xzX = r.getX();
-            int xzY = dZ - r.getZ() - 1;
+        for (Cell cell : cells) {
+            int xzX = cell.getX() + pos.getX();
+            int xzY = dZ - cell.getZ() - pos.getZ() - 1;
             chars[xzX + width * xzY] = '#';
 
-            int yzX = dX + 1 + r.getY();
+            int yzX = dX + 1 + cell.getY() + pos.getY();
             int yzY = xzY;
             chars[yzX + width * yzY] = '#';
 
             int xyX = xzX;
-            int xyY = dZ + 1 + r.getY();
+            int xyY = dZ + 1 + cell.getY() + pos.getY();
             chars[xyX + width * xyY] = '#';
         }
 
@@ -115,6 +118,14 @@ public class Cells {
             image.append('\n').append(chars, p, width);
         }
         return image.toString();
+    }
+
+    public static String print(Dim dim, List<Placement> placements) {
+        StringBuilder chars = new StringBuilder();
+        for (Placement p : placements) {
+            chars.append(Cells.print(dim, p.getRotation(), p.getPosition())).append('\n');
+        }
+        return chars.toString();
     }
 
     public static Collection<Cell> rotateXY(Collection<Cell> figure) {

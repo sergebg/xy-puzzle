@@ -53,8 +53,8 @@ public class CellsTest {
 
     @Test
     public void testPrint() {
-        assertEquals("\n#  # \n## ##\n#  # \n     \n##   \n#    ", Cells.print(asList(
-                newCell(1, 1, 1), newCell(1, 1, 2), newCell(1, 2, 1), newCell(2, 1, 1), newCell(1, 1, 0))));
+        assertEquals("\n  #|  #\n # | # \n#  |#  \n---+---\n#  |   \n # |   \n  #|   ", Cells.print(newDim(3), asList(
+                newCell(0, 0, 0), newCell(1, 1, 1), newCell(2, 2, 2)), newPosition(0, 0, 0)));
     }
 
     @Test

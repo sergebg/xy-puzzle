@@ -6,6 +6,10 @@ public class Dim {
 
     private static final int MAX_SIZE = Integer.MAX_VALUE;
 
+    public static Dim newDim(int d) {
+        return newDim(d, d, d);
+    }
+
     public static Dim newDim(int x, int y, int z) {
         Preconditions.checkArgument(x >= 0 && y >= 0 && z >= 0);
         Preconditions.checkArgument(x <= MAX_SIZE && y <= MAX_SIZE && z <= MAX_SIZE);
@@ -46,8 +50,16 @@ public class Dim {
         return value >= 0 && value < limit;
     }
 
+    public Object isValid(Cell c) {
+        return isValid(c.getX(), c.getY(), c.getZ());
+    }
+
+    private boolean isValid(int a, int b, int c) {
+        return isUnderLimit(a, x) && isUnderLimit(b, y) && isUnderLimit(c, z);
+    }
+
     public boolean isValid(Position p) {
-        return isUnderLimit(p.getX(), x) && isUnderLimit(p.getY(), y) && isUnderLimit(p.getZ(), z);
+        return isValid(p.getX(), p.getY(), p.getZ());
     }
 
     @Override

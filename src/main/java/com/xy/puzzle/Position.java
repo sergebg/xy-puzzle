@@ -1,5 +1,7 @@
 package com.xy.puzzle;
 
+import static com.xy.puzzle.Cell.newCell;
+
 public class Position {
 
     public static Position newPosition(int x, int y, int z) {
@@ -62,6 +64,10 @@ public class Position {
         result = prime * result + y;
         result = prime * result + z;
         return result;
+    }
+
+    public Cell move(Cell c) {
+        return newCell(x + c.getX(), y + c.getY(), z + c.getZ());
     }
 
     @Override

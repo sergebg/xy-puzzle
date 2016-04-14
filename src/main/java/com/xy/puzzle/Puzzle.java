@@ -2,6 +2,7 @@ package com.xy.puzzle;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -66,11 +67,15 @@ public class Puzzle {
         return ImmutableList.copyOf(list);
     }
 
+    public int getRemain() {
+        return remain;
+    }
+
     public int getSize() {
         return dimension.getSize();
     }
 
-    public int solve() {
+    public List<Placement> solve() {
         final int d = dimension.getSize();
         for (int i = 0; i < combinationNumber; i++) {
             BitSet spaceMask = new BitSet(d);
@@ -94,10 +99,10 @@ public class Puzzle {
                 }
             }
             if (solved) {
-                return i;
+                return decodePositions(i);
             }
         }
-        return -1;
+        return Collections.emptyList();
     }
 
 }
