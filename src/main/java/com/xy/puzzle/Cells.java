@@ -1,5 +1,8 @@
 package com.xy.puzzle;
 
+import static com.xy.puzzle.Cell.newCell;
+import static com.xy.puzzle.Position.newPosition;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -13,11 +16,12 @@ import com.google.common.collect.ImmutableSet;
 
 public class Cells {
 
-    private static Cell available(Cell cell1, Cell cell2) {
-        int x = Math.max(1 + cell1.getX() - cell2.getX(), 0);
-        int y = Math.max(1 + cell1.getY() - cell2.getY(), 0);
-        int z = Math.max(1 + cell1.getZ() - cell2.getZ(), 0);
-        return new Cell(x, y, z);
+    private static Dim available(Collection<Cell> figure, Dim dim) {
+        Cell high = high(figure);
+        int x = Math.max(dim.getX() - high.getX(), 0);
+        int y = Math.max(dim.getY() - high.getY(), 0);
+        int z = Math.max(dim.getZ() - high.getZ(), 0);
+        return Dim.newDim(x, y, z);
     }
 
     public static Cell high(Collection<Cell> figure) {
@@ -25,7 +29,7 @@ public class Cells {
         for (Cell cell : figure) {
             cell.updateHigh(high);
         }
-        return new Cell(high[0], high[1], high[2]);
+        return newCell(high[0], high[1], high[2]);
     }
 
     public static Cell low(Collection<Cell> figure) {
@@ -33,7 +37,21 @@ public class Cells {
         for (Cell cell : figure) {
             cell.updateLow(low);
         }
-        return new Cell(low[0], low[1], low[2]);
+        return newCell(low[0], low[1], low[2]);
+    }
+
+    public static BitSet mask(Dim dim, Collection<Cell> figure, Position position) {
+        int n = dim.getX() * dim.getY() * dim.getZ();
+        BitSet mask = new BitSet(n);
+        mask.clear(0, n);
+        for (Cell cell : figure) {
+            int x = cell.getX() + position.getX();
+            int y = cell.getY() + position.getY();
+            int z = cell.getZ() + position.getZ();
+            int i = x + y * dim.getX() + z * dim.getX() * dim.getY();
+            mask.set(i);
+        }
+        return mask;
     }
 
     public static Collection<Cell> normalize(Collection<Cell> figure) {
@@ -48,19 +66,18 @@ public class Cells {
         return list;
     }
 
-    public static List<Cell> offsets(List<Cell> figure, Cell space) {
-        Cell figureDim = high(figure);
-        Cell dim = available(space, figureDim);
-        int n = dim.getX() * dim.getY() * dim.getZ();
+    public static List<Position> offsets(Collection<Cell> figure, Dim dim) {
+        Dim available = available(figure, dim);
+        int n = available.getSize();
         if (n == 0) {
             return Collections.emptyList();
         }
-        List<Cell> offsets = new ArrayList<>(n);
+        List<Position> offsets = new ArrayList<>(n);
         for (int i = 0; i < n; i++) {
-            int x = i % dim.getX();
-            int y = i / dim.getX() % dim.getY();
-            int z = i / dim.getX() / dim.getY();
-            offsets.add(new Cell(x, y, z));
+            int x = i % available.getX();
+            int y = i / available.getX() % available.getY();
+            int z = i / available.getX() / available.getY();
+            offsets.add(newPosition(x, y, z));
         }
         return offsets;
     }
@@ -103,7 +120,7 @@ public class Cells {
     public static Collection<Cell> rotateXY(Collection<Cell> figure) {
         List<Cell> rotation = new ArrayList<>(figure.size());
         for (Cell cell : figure) {
-            rotation.add(new Cell(-cell.getY(), cell.getX(), cell.getZ()));
+            rotation.add(newCell(-cell.getY(), cell.getX(), cell.getZ()));
         }
         return normalize(rotation);
     }
@@ -111,7 +128,7 @@ public class Cells {
     public static Collection<Cell> rotateXZ(Collection<Cell> figure) {
         List<Cell> rotation = new ArrayList<>(figure.size());
         for (Cell cell : figure) {
-            rotation.add(new Cell(-cell.getZ(), cell.getY(), cell.getX()));
+            rotation.add(newCell(-cell.getZ(), cell.getY(), cell.getX()));
         }
         return normalize(rotation);
     }
@@ -119,7 +136,7 @@ public class Cells {
     public static Collection<Cell> rotateYZ(Collection<Cell> figure) {
         List<Cell> rotation = new ArrayList<>(figure.size());
         for (Cell cell : figure) {
-            rotation.add(new Cell(cell.getX(), -cell.getZ(), cell.getY()));
+            rotation.add(newCell(cell.getX(), -cell.getZ(), cell.getY()));
         }
         return normalize(rotation);
     }
@@ -166,20 +183,6 @@ public class Cells {
 
     private Cells() {
         throw new AssertionError();
-    }
-
-    public static BitSet mask(Collection<Cell> figure, Cell offset, Cell dim) {
-        int n = dim.getX() * dim.getY() * dim.getZ();
-        BitSet mask = new BitSet(n);
-        mask.clear(0, n);
-        for (Cell cell : figure) {
-            int x = cell.getX() + offset.getX();
-            int y = cell.getY() + offset.getY();
-            int z = cell.getZ() + offset.getZ();
-            int i = x + y * dim.getX() + z * dim.getX() * dim.getY();
-            mask.set(i);
-        }
-        return mask;
     }
 
 }

@@ -1,9 +1,9 @@
 package com.xy.puzzle;
 
-public class Cell {
+public class Position {
 
-    public static Cell newCell(int x, int y, int z) {
-        return new Cell(x, y, z);
+    public static Position newPosition(int x, int y, int z) {
+        return new Position(x, y, z);
     }
 
     private final int x;
@@ -12,7 +12,7 @@ public class Cell {
 
     private final int z;
 
-    private Cell(int x, int y, int z) {
+    private Position(int x, int y, int z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -29,7 +29,7 @@ public class Cell {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        Cell other = (Cell) obj;
+        Position other = (Position) obj;
         if (x != other.x) {
             return false;
         }
@@ -64,37 +64,9 @@ public class Cell {
         return result;
     }
 
-    public Cell relative(Cell base) {
-        return new Cell(x - base.x, y - base.y, z - base.z);
-    }
-
     @Override
     public String toString() {
         return "(" + x + ", " + y + ", " + z + ")";
-    }
-
-    public void updateHigh(int[] high) {
-        if (high[0] < x) {
-            high[0] = x;
-        }
-        if (high[1] < y) {
-            high[1] = y;
-        }
-        if (high[2] < z) {
-            high[2] = z;
-        }
-    }
-
-    public void updateLow(int[] low) {
-        if (low[0] > x) {
-            low[0] = x;
-        }
-        if (low[1] > y) {
-            low[1] = y;
-        }
-        if (low[2] > z) {
-            low[2] = z;
-        }
     }
 
 }
