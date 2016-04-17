@@ -1,6 +1,7 @@
 package com.xy.puzzle;
 
 import static com.xy.puzzle.Cell.newCell;
+import static com.xy.puzzle.Dim.newDim;
 import static com.xy.puzzle.Figure.newFigure;
 import static com.xy.puzzle.Position.newPosition;
 import static java.util.Arrays.asList;
@@ -8,6 +9,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -31,7 +33,7 @@ public class PuzzleTest {
         assertEquals(24 * 24 * 12, puzzle.addFigure(stick));
         List<Placement> placements = puzzle.solve();
 
-        assertEquals(asList(newPosition(0, 1, 0), newPosition(0, 0, 0), newPosition(0, 0, 0)),
+        assertEquals(asList(newPosition(0, 0, 0), newPosition(0, 1, 0), newPosition(0, 0, 0)),
                 ImmutableList.copyOf(placements.stream().map(Placement::getPosition).iterator()));
     }
 
@@ -60,12 +62,13 @@ public class PuzzleTest {
         puzzle.addFigure(stick2);
         assertEquals(0, puzzle.getRemain());
         List<Placement> placements = puzzle.solve();
-
+        // System.out.println(Cells.print(dim, placements));
+        
         assertEquals(6, placements.size());
-        assertArrayEquals(new Object[] {
-                newPosition(0, 0, 1), newPosition(0, 2, 0), newPosition(2, 1, 0),
-                newPosition(2, 0, 0), newPosition(1, 0, 0), newPosition(0, 0, 0) },
-                placements.stream().map(Placement::getPosition).toArray());
+        assertEquals(asList(
+                newPosition(0, 0, 0), newPosition(0, 2, 0), newPosition(0, 0, 2),
+                newPosition(0, 1, 2), newPosition(2, 0, 0), newPosition(2, 0, 1)),
+                asList(placements.stream().map(Placement::getPosition).toArray()));
 
         List<Cell> cells = new ArrayList<>();
         for (Placement p : placements) {
@@ -94,6 +97,49 @@ public class PuzzleTest {
         List<Placement> placements = puzzle.solve();
 
         assertEquals(8, placements.stream().map(Placement::getPosition).distinct().count());
+        assertArrayEquals(new Object[] { true }, placements.stream()
+                .map(Placement::getPosition).map(p -> dim.isValid(p)).distinct().toArray());
+    }
+
+    @Test
+    public void testSimple1d() {
+        Dim dim = Dim.newDim(2, 1, 1);
+        Puzzle puzzle = new Puzzle(dim);
+        Figure figure = newFigure(newCell(0, 0, 0));
+        assertEquals(2, puzzle.addFigure(figure));
+        assertEquals(4, puzzle.addFigure(figure));
+        List<Placement> placements = puzzle.solve();
+
+        assertEquals(2, placements.stream().map(Placement::getPosition).distinct().count());
+        assertArrayEquals(new Object[] { true }, placements.stream()
+                .map(Placement::getPosition).map(p -> dim.isValid(p)).distinct().toArray());
+    }
+
+    @Test
+    public void testSimple2d() {
+        Dim dim = Dim.newDim(2, 2, 1);
+        Puzzle puzzle = new Puzzle(dim);
+        Figure figure = newFigure(newCell(0, 0, 0));
+        assertEquals(4, puzzle.addFigure(figure));
+        assertEquals(16, puzzle.addFigure(figure));
+        assertEquals(64, puzzle.addFigure(figure));
+        assertEquals(256, puzzle.addFigure(figure));
+        List<Placement> placements = puzzle.solve();
+
+        assertEquals(4, placements.stream().map(Placement::getPosition).distinct().count());
+        assertArrayEquals(new Object[] { true }, placements.stream()
+                .map(Placement::getPosition).map(p -> dim.isValid(p)).distinct().toArray());
+    }
+
+    @Test
+    public void testTrivial() {
+        Dim dim = newDim(1);
+        Puzzle puzzle = new Puzzle(dim);
+        Figure figure = newFigure(newCell(0, 0, 0));
+        assertEquals(1, puzzle.addFigure(figure));
+        List<Placement> placements = puzzle.solve();
+
+        assertEquals(1, placements.stream().map(Placement::getPosition).distinct().count());
         assertArrayEquals(new Object[] { true }, placements.stream()
                 .map(Placement::getPosition).map(p -> dim.isValid(p)).distinct().toArray());
     }

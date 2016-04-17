@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 
 public class Puzzle {
@@ -16,8 +17,6 @@ public class Puzzle {
     private int remain;
 
     private long combinationNumber = 1;
-
-    private final List<List<Cell>> figures = new ArrayList<>();
 
     private final List<List<BitSet>> masks = new ArrayList<>();
 
@@ -57,16 +56,6 @@ public class Puzzle {
         return combinationNumber;
     }
 
-    public List<Placement> decodePositions(long i) {
-        List<Placement> list = new ArrayList<>(figures.size());
-        for (List<Placement> figurePlacements : placements) {
-            int n = figurePlacements.size();
-            list.add(figurePlacements.get(toInt(i % n)));
-            i /= n;
-        }
-        return ImmutableList.copyOf(list);
-    }
-
     public int getRemain() {
         return remain;
     }
@@ -76,40 +65,45 @@ public class Puzzle {
     }
 
     public List<Placement> solve() {
-        final int d = dimension.getSize();
-        for (long i = 0; i < combinationNumber; i++) {
-            BitSet spaceMask = new BitSet(d);
-            spaceMask.set(0, d);
-            int n = 1;
-            boolean solved = true;
-            for (List<BitSet> figureMasks : masks) {
-                int m = figureMasks.size();
-                int k = toInt(i / n % m);
-                n *= m;
+        int d = dimension.getSize();
+        BitSet spaceMask = new BitSet(d);
+        spaceMask.set(0, d);
 
-                BitSet figureMask = figureMasks.get(k);
-                int figureSize = figureMask.cardinality();
-                int spaceSize = spaceMask.cardinality();
-
-                spaceMask.xor(figureMask);
-                if (spaceMask.cardinality() != spaceSize - figureSize) {
-                    spaceMask.xor(figureMask);
-                    solved = false;
-                    break;
-                }
+        int n = masks.size();
+        int[] combination = new int[n];
+        if (solveInternal(spaceMask, 0, combination)) {
+            List<Placement> list = new ArrayList<>(n);
+            for (int i = 0; i < n; i++) {
+                List<Placement> figurePlacements = placements.get(i);
+                list.add(figurePlacements.get(combination[i]));
             }
-            if (solved) {
-                return decodePositions(i);
-            }
+            return ImmutableList.copyOf(list);
         }
+        
         return Collections.emptyList();
     }
 
-    private int toInt(long l) {
-        if (l < 0 || l > Integer.MAX_VALUE) {
-            throw new IllegalStateException("Can't convert " + l + " to int");
+    private boolean solveInternal(BitSet spaceMask, int figureNumber, int[] combination) {
+        if (figureNumber == masks.size()) {
+            return true;
         }
-        return (int) l;
+        List<BitSet> figureMasks = masks.get(figureNumber);
+        int n = figureMasks.size();
+        int spaceSize = spaceMask.cardinality();
+        for (int i = 0; i < n; i++) {
+            BitSet figureMask = figureMasks.get(i);
+            int figureSize = figureMask.cardinality();
+            spaceMask.xor(figureMask);
+            int remain = spaceMask.cardinality();
+            if (remain == spaceSize - figureSize) {
+                if (solveInternal(spaceMask, figureNumber + 1, combination)) {
+                    combination[figureNumber] = i;
+                    return true;
+                }
+            }
+            spaceMask.xor(figureMask);
+        }
+        return false;
     }
 
 }
