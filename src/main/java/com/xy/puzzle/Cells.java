@@ -109,7 +109,7 @@ public class Cells {
             chars[yzX + width * yzY] = '#';
 
             int xyX = xzX;
-            int xyY = dZ + 1 + cell.getY() + pos.getY();
+            int xyY = dZ + dY - cell.getY() - pos.getY();
             chars[xyX + width * xyY] = '#';
         }
 

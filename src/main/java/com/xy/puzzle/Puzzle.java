@@ -15,7 +15,7 @@ public class Puzzle {
 
     private int remain;
 
-    private int combinationNumber = 1;
+    private long combinationNumber = 1;
 
     private final List<List<Cell>> figures = new ArrayList<>();
 
@@ -28,7 +28,7 @@ public class Puzzle {
         remain = dimension.getSize();
     }
 
-    public int addFigure(Figure figure) {
+    public long addFigure(Figure figure) {
         Preconditions.checkNotNull(figure);
         Preconditions.checkArgument(remain >= figure.size());
 
@@ -57,11 +57,11 @@ public class Puzzle {
         return combinationNumber;
     }
 
-    public List<Placement> decodePositions(int i) {
+    public List<Placement> decodePositions(long i) {
         List<Placement> list = new ArrayList<>(figures.size());
         for (List<Placement> figurePlacements : placements) {
             int n = figurePlacements.size();
-            list.add(figurePlacements.get(i % n));
+            list.add(figurePlacements.get(toInt(i % n)));
             i /= n;
         }
         return ImmutableList.copyOf(list);
@@ -77,14 +77,14 @@ public class Puzzle {
 
     public List<Placement> solve() {
         final int d = dimension.getSize();
-        for (int i = 0; i < combinationNumber; i++) {
+        for (long i = 0; i < combinationNumber; i++) {
             BitSet spaceMask = new BitSet(d);
             spaceMask.set(0, d);
             int n = 1;
             boolean solved = true;
             for (List<BitSet> figureMasks : masks) {
                 int m = figureMasks.size();
-                int k = i / n % m;
+                int k = toInt(i / n % m);
                 n *= m;
 
                 BitSet figureMask = figureMasks.get(k);
@@ -103,6 +103,13 @@ public class Puzzle {
             }
         }
         return Collections.emptyList();
+    }
+
+    private int toInt(long l) {
+        if (l < 0 || l > Integer.MAX_VALUE) {
+            throw new IllegalStateException("Can't convert " + l + " to int");
+        }
+        return (int) l;
     }
 
 }

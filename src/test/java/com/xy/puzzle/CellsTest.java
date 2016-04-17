@@ -53,8 +53,9 @@ public class CellsTest {
 
     @Test
     public void testPrint() {
-        assertEquals("\n  #|  #\n # | # \n#  |#  \n---+---\n#  |   \n # |   \n  #|   ", Cells.print(newDim(3), asList(
-                newCell(0, 0, 0), newCell(1, 1, 1), newCell(2, 2, 2)), newPosition(0, 0, 0)));
+        String schema = Cells.print(newDim(3), asList(newCell(0, 0, 0), newCell(1, 1, 1), newCell(2, 2, 2)), newPosition(0, 0, 0));
+        System.out.println(schema);
+        assertEquals("\n  #|  #\n # | # \n#  |#  \n---+---\n  #|   \n # |   \n#  |   ", schema);
     }
 
     @Test
